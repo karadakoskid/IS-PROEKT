@@ -64,9 +64,9 @@
 
 <div class="container py-4">
 
-    <div class="mb-4 d-flex justify-content-start">
-        <a class="btn btn-success btn-lg" asp-action="Create" style="min-width: 200px;">Insert New Product</a>
-    </div>
+    @* <div class="mb-4 d-flex justify-content-start"> *@
+        @* <a class="btn btn-success btn-lg" asp-action="Create" style="min-width: 200px;">Insert New Product</a> *@
+    @* </div> *@
 
     @for (int i = 0; i < Model.Count; i += 3)
     {
@@ -91,9 +91,18 @@
                         </div>
 
                         <div class="card-footer bg-transparent border-top-0 d-flex justify-content-between gap-2">
-                            <a asp-controller="Products" asp-action="AddProductToCard" asp-route-id="@item.Id" class="btn btn-info btn-sm flex-fill">Add to Cart</a>
-                            <a asp-controller="Products" asp-action="Edit" asp-route-pid="@item.Id" class="btn btn-secondary btn-sm flex-fill">Edit</a>
-                            <a asp-controller="Products" asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm flex-fill">Delete</a>
+                            @if (User.Identity.IsAuthenticated)
+                            {
+                                <a asp-controller="Products" asp-action="AddProductToCard" asp-route-id="@item.Id" class="btn btn-info btn-sm flex-fill">Add to Cart</a>
+                            }
+                            else
+                            {
+                                <a asp-area="Identity" asp-page="/Account/Login" class="btn btn-warning btn-sm flex-fill">
+                                    <i class="bi bi-person-lock me-1"></i>Login to Add to Cart
+                                </a>
+                            }
+                            @* <a asp-controller="Products" asp-action="Edit" asp-route-pid="@item.Id" class="btn btn-secondary btn-sm flex-fill">Edit</a> *@
+                            @* <a asp-controller="Products" asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm flex-fill">Delete</a> *@
                         </div>
                     </div>
                 </div>

@@ -41,3 +41,11 @@ bld/
 msbuild.log
 msbuild.err
 msbuild.wrn
+
+# Configuration files with secrets
+**/appsettings.Development.json
+**/appsettings.Local.json
+
+# Environment variables
+.env
+.env.local

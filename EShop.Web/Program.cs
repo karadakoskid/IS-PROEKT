@@ -1,5 +1,6 @@
 using EShop.Domain.Email;
 using EShop.Domain.Identity_Models;
+using EShop.Domain.Payment;
 using EShop.Repository;
 using EShop.Repository.Implementation;
 using EShop.Repository.Interface;
@@ -14,10 +15,13 @@ var builder = WebApplication.CreateBuilder(args);
 
 //builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("EmailSettings"));
 
+// Configure Stripe
+builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
+
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
+    options.UseSqlite(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddDefaultIdentity<EShopApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
@@ -33,6 +37,7 @@ builder.Services.AddTransient<IShoppingCartService, ShoppingCartService>();
 builder.Services.AddTransient<IOrderService, OrderService>();
 builder.Services.AddTransient<IEmailService, EmailService>();
 builder.Services.AddTransient<IDataFetchService, DataFetchService>();
+builder.Services.AddTransient<IPaymentService, PaymentService>();
 
 builder.Services.AddControllersWithViews().AddNewtonsoftJson(options =>
     options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
@@ -46,7 +51,25 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    db.Database.Migrate(); // This will create the DB and apply any pending migrations
+    db.Database.EnsureCreated(); // This will create the DB without migrations
+    
+    // Auto-import products if database is empty
+    var productService = scope.ServiceProvider.GetRequiredService<IProductService>();
+    var dataFetchService = scope.ServiceProvider.GetRequiredService<IDataFetchService>();
+    
+    if (!productService.GetAll().Any())
+    {
+        Console.WriteLine("Database is empty, importing products from API...");
+        try
+        {
+            var products = await dataFetchService.FetchCoursesFromApi();
+            Console.WriteLine($"Successfully imported {products.Count} products from Google Books API");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Failed to import products: {ex.Message}");
+        }
+    }
 }
 
 // Configure the HTTP request pipeline.

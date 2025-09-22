@@ -76,7 +76,7 @@
         <nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom shadow-sm mb-3">
             <div class="container-fluid">
                 <a class="navbar-brand fw-bold" asp-area="" asp-controller="Home" asp-action="Index">
-                    <i class="bi bi-bag-check-fill me-1"></i> EShop.Web
+                    <i class="bi bi-bag-check-fill me-1"></i> EBook
                 </a>
 
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar"
@@ -98,14 +98,17 @@
                         @* </li> *@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-controller="Products" asp-action="Index">
-                                <i class="bi bi-box-seam me-1"></i> All Products
+                                <i class="bi bi-box-seam me-1"></i> All Books
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="ShoppingCarts" asp-action="Index">
-                                <i class="bi bi-cart3 me-1"></i> Shopping Cart
-                            </a>
-                        </li>
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="ShoppingCarts" asp-action="Index">
+                                    <i class="bi bi-cart3 me-1"></i> Shopping Cart
+                                </a>
+                            </li>
+                        }
                     </ul>
                     <partial name="_LoginPartial" />
                 </div>
@@ -119,10 +122,139 @@
         </main>
     </div>
 
-    <footer class="border-top footer text-muted mt-4">
-        <div class="container py-3 text-center">
-            &copy; 2025 - Librarian |
-            <a asp-controller="Home" asp-action="Privacy" class="text-muted">Privacy Policy</a>
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-5 mt-5">
+        <div class="container">
+            <div class="row">
+                <!-- About Section -->
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="footer-brand mb-3">
+                        <h5 class="fw-bold">
+                            <i class="bi bi-bag-check-fill me-2 text-primary"></i>EBook Store
+                        </h5>
+                    </div>
+                    <p class="text-muted mb-3">
+                        Your premier destination for discovering amazing books. From classic literature to modern bestsellers, 
+                        we have something for every reader.
+                    </p>
+                    <div class="social-links">
+                        <a href="#" class="text-light me-3" title="Facebook">
+                            <i class="bi bi-facebook fs-5"></i>
+                        </a>
+                        <a href="#" class="text-light me-3" title="Twitter">
+                            <i class="bi bi-twitter fs-5"></i>
+                        </a>
+                        <a href="#" class="text-light me-3" title="Instagram">
+                            <i class="bi bi-instagram fs-5"></i>
+                        </a>
+                        <a href="#" class="text-light me-3" title="LinkedIn">
+                            <i class="bi bi-linkedin fs-5"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Quick Links -->
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h6 class="fw-bold mb-3">Quick Links</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <a asp-controller="Home" asp-action="Index" class="text-muted text-decoration-none">
+                                <i class="bi bi-chevron-right me-1"></i>Home
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a asp-controller="Products" asp-action="Index" class="text-muted text-decoration-none">
+                                <i class="bi bi-chevron-right me-1"></i>All Books
+                            </a>
+                        </li>
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <li class="mb-2">
+                                <a asp-controller="ShoppingCarts" asp-action="Index" class="text-muted text-decoration-none">
+                                    <i class="bi bi-chevron-right me-1"></i>Shopping Cart
+                                </a>
+                            </li>
+                        }
+                        <li class="mb-2">
+                            <a href="#" class="text-muted text-decoration-none">
+                                <i class="bi bi-chevron-right me-1"></i>New Releases
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Categories -->
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h6 class="fw-bold mb-3">Categories</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <a href="#" class="text-muted text-decoration-none">
+                                <i class="bi bi-chevron-right me-1"></i>Fantasy
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="#" class="text-muted text-decoration-none">
+                                <i class="bi bi-chevron-right me-1"></i>Adventure
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="#" class="text-muted text-decoration-none">
+                                <i class="bi bi-chevron-right me-1"></i>Fiction
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="#" class="text-muted text-decoration-none">
+                                <i class="bi bi-chevron-right me-1"></i>Non-Fiction
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Contact Info -->
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <h6 class="fw-bold mb-3">Contact Information</h6>
+                    <div class="contact-info">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="bi bi-geo-alt-fill text-primary me-3 fs-5"></i>
+                            <div>
+                                <p class="text-muted mb-0">123 Book Street</p>
+                                <p class="text-muted mb-0">Reading City, RC 12345</p>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="bi bi-telephone-fill text-primary me-3 fs-5"></i>
+                            <p class="text-muted mb-0">+1 (555) 123-4567</p>
+                        </div>
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="bi bi-envelope-fill text-primary me-3 fs-5"></i>
+                            <p class="text-muted mb-0">info@ebookstore.com</p>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-clock-fill text-primary me-3 fs-5"></i>
+                            <div>
+                                <p class="text-muted mb-0">Mon - Fri: 9:00 AM - 6:00 PM</p>
+                                <p class="text-muted mb-0">Sat - Sun: 10:00 AM - 4:00 PM</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Copyright -->
+            <div class="row mt-4 pt-4 border-top border-secondary">
+                <div class="col-md-6 mb-2">
+                    <p class="text-muted mb-0">
+                        &copy; @DateTime.Now.Year EBook Store. All rights reserved.
+                    </p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <div class="footer-links">
+                        <a href="#" class="text-muted text-decoration-none me-3">Privacy Policy</a>
+                        <a href="#" class="text-muted text-decoration-none me-3">Terms of Service</a>
+                        <a href="#" class="text-muted text-decoration-none">Support</a>
+                    </div>
+                </div>
+            </div>
         </div>
     </footer>
 
@@ -130,6 +262,7 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

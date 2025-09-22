@@ -1,52 +1,168 @@
 ﻿@model EShop.Domain.DTO.ShoppingCartDTO
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Shopping Cart";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container">
+<div class="container py-4">
     <div class="row">
-        <a asp-controller="ShoppingCarts" asp-action="OrderNow" class="btn btn-success">Order now</a>
+        <div class="col-12">
+            <h2 class="mb-4">
+                <i class="bi bi-cart3 me-2"></i>Your Shopping Cart
+            </h2>
+        </div>
     </div>
 
-    <div class="row" style="margin-top:20px;">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">Product Name</th>
-                    <th scope="col">Quantity</th>
-                    <th scope="col">Price</th>
-                    <th scope="col"></th>
-                </tr>
-            </thead>
-            <tbody>
-                @for (int i = 0; i < Model.Products.Count; i++)
-                {
-                    var currentProduct = Model.Products[i];
+    @if (Model?.Products != null && Model.Products.Any())
+    {
+        <div class="row">
+            <div class="col-lg-8">
+                <!-- Cart Items -->
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th scope="col">#</th>
+                                        <th scope="col">Product</th>
+                                        <th scope="col">Quantity</th>
+                                        <th scope="col">Price</th>
+                                        <th scope="col">Total</th>
+                                        <th scope="col">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (int i = 0; i < Model.Products.Count; i++)
+                                    {
+                                        var currentProduct = Model.Products[i];
+                                        var itemTotal = currentProduct.Product.ProductPrice * currentProduct.Quantity;
 
-                    <tr>
-                        <td>@(i + 1)</td>
-                        <td>@currentProduct.Product.ProductName</td>
-                        <td>@currentProduct.Quantity</td>
-                        <td>@currentProduct.Product.ProductPrice</td>
-                        <td>
-                            <a asp-controller="ShoppingCarts" asp-action="Delete" asp-route-id="@currentProduct.Id" class="btn btn-danger">Delete</a>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-            <tfoot>
-                <tr>
-                    <th scope="col">Total Price:</th>
-                    <th scope="col"></th>
-                    <th scope="col"></th>
-                    <th scope="col"></th>
-                    <th scope="col">@Model.TotalPrice ДЕН</th>
-                </tr>
-            </tfoot>
-        </table>
-    </div>
-
+                                        <tr>
+                                            <td>@(i + 1)</td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    @if (!string.IsNullOrEmpty(currentProduct.Product.ProductImage))
+                                                    {
+                                                        <img src="@currentProduct.Product.ProductImage" alt="@currentProduct.Product.ProductName" 
+                                                             class="rounded me-3" style="width: 50px; height: 50px; object-fit: cover;">
+                                                    }
+                                                    <div>
+                                                        <h6 class="mb-0">@currentProduct.Product.ProductName</h6>
+                                                        <small class="text-muted">
+                                                            @(currentProduct.Product.ProductDescription.Length > 50 ? 
+                                                              currentProduct.Product.ProductDescription.Substring(0, 50) + "..." : 
+                                                              currentProduct.Product.ProductDescription)
+                                                        </small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-secondary fs-6">@currentProduct.Quantity</span>
+                                            </td>
+                                            <td>
+                                                <strong>$@currentProduct.Product.ProductPrice.ToString("F2")</strong>
+                                            </td>
+                                            <td>
+                                                <strong class="text-success">$@itemTotal.ToString("F2")</strong>
+                                            </td>
+                                            <td>
+                                                <a asp-controller="ShoppingCarts" asp-action="Delete" asp-route-id="@currentProduct.Id" 
+                                                   class="btn btn-outline-danger btn-sm"
+                                                   onclick="return confirm('Are you sure you want to remove this item?')">
+                                                    <i class="bi bi-trash me-1"></i>Remove
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <!-- Order Summary -->
+                <div class="card shadow-sm sticky-top">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="bi bi-receipt me-2"></i>Order Summary
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        @{
+                            decimal subtotal = Model.Products.Sum(x => (decimal)(x.Product.ProductPrice * x.Quantity));
+                            decimal tax = subtotal * 0.1m; // 10% tax
+                            decimal total = subtotal + tax;
+                        }
+                        
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Items (@Model.Products.Count):</span>
+                            <span>$@subtotal.ToString("F2")</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Tax (10%):</span>
+                            <span>$@tax.ToString("F2")</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Shipping:</span>
+                            <span class="text-success">Free</span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between mb-4">
+                            <strong>Total:</strong>
+                            <strong class="text-success fs-5">$@total.ToString("F2")</strong>
+                        </div>
+                        
+                        <!-- Action Buttons -->
+                        <div class="d-grid gap-2">
+                            <a asp-controller="Payment" asp-action="Checkout" class="btn btn-success btn-lg">
+                                <i class="bi bi-credit-card me-2"></i>Proceed to Checkout
+                            </a>
+                            <a asp-controller="ShoppingCarts" asp-action="OrderNow" class="btn btn-outline-primary">
+                                <i class="bi bi-bag-check me-2"></i>Quick Order (Free)
+                            </a>
+                        </div>
+                        
+                        <div class="text-center mt-3">
+                            <small class="text-muted">
+                                <i class="bi bi-shield-check text-success me-1"></i>
+                                Secure checkout with SSL encryption
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Continue Shopping -->
+                <div class="mt-3">
+                    <a asp-controller="Products" asp-action="Index" class="btn btn-outline-secondary w-100">
+                        <i class="bi bi-arrow-left me-2"></i>Continue Shopping
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <!-- Empty Cart -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-body text-center py-5">
+                        <i class="bi bi-cart-x display-1 text-muted mb-4"></i>
+                        <h3 class="mb-3">Your cart is empty</h3>
+                        <p class="text-muted mb-4">
+                            Looks like you haven't added any books to your cart yet. 
+                            Start browsing our amazing collection!
+                        </p>
+                        <a asp-controller="Products" asp-action="Index" class="btn btn-primary btn-lg">
+                            <i class="bi bi-book me-2"></i>Browse Books
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
 </div>

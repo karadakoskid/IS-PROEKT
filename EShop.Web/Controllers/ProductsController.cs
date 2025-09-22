@@ -136,8 +136,53 @@ namespace EShop.Web.Controllers
         public IActionResult AddProductToCard(AddToCartDTO model)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            
+            if (string.IsNullOrEmpty(userId))
+            {
+                // Redirect to login if user is not authenticated
+                return RedirectToAction("Login", "Account", new { area = "Identity" });
+            }
+            
             _productService.AddProductToSoppingCart(model.SelectedProductId, Guid.Parse(userId), model.Quantity);
             return RedirectToAction(nameof(Index));
+        }
+
+        // Simple AddToCart action for quick add from home page
+        public IActionResult AddToCart(Guid id)
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            
+            if (string.IsNullOrEmpty(userId))
+            {
+                // Store the product they wanted to add to redirect back after login
+                TempData["ProductToAdd"] = id;
+                TempData["ErrorMessage"] = "Please log in to add items to your cart.";
+                return RedirectToAction("Login", "Account", new { area = "Identity" });
+            }
+            
+            try
+            {
+                // Get the product details to show in success message
+                var product = _productService.GetById(id);
+                if (product == null)
+                {
+                    TempData["ErrorMessage"] = "Product not found.";
+                    return RedirectToAction("Index", "Home");
+                }
+                
+                // Add product with quantity 1 by default
+                _productService.AddProductToSoppingCart(id, Guid.Parse(userId), 1);
+                
+                TempData["SuccessMessage"] = $"'{product.ProductName}' has been added to your cart!";
+                
+                // Redirect to shopping cart to show the added item
+                return RedirectToAction("Index", "ShoppingCarts");
+            }
+            catch (Exception)
+            {
+                TempData["ErrorMessage"] = "There was an error adding the item to your cart. Please try again.";
+                return RedirectToAction("Index", "Home");
+            }
         }
     }
 }

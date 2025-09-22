@@ -26,6 +26,13 @@ namespace EShop.Web.Controllers
         public IActionResult Index()
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            
+            if (string.IsNullOrEmpty(userId))
+            {
+                // Redirect to login if user is not authenticated
+                return RedirectToAction("Login", "Account", new { area = "Identity" });
+            }
+            
             var userShoppingCart = _shoppingCartService.GetByUserIdWithIncludedPrducts(Guid.Parse(userId));
             return View(userShoppingCart);
         }
@@ -43,9 +50,10 @@ namespace EShop.Web.Controllers
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            if(userId == null)
+            if (string.IsNullOrEmpty(userId))
             {
-                throw new Exception("Log in");
+                // Redirect to login if user is not authenticated
+                return RedirectToAction("Login", "Account", new { area = "Identity" });
             }
 
             _shoppingCartService.OrderProducts(Guid.Parse(userId));
